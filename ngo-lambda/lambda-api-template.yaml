@@ -77,7 +77,7 @@ Resources:
       FunctionName: !Ref LAMBDANAME
       MemorySize: 512
       Role: !GetAtt LambdaRole.Arn
-      Timeout: 15
+      Timeout: 60
       Environment:
         Variables:
           CA_ENDPOINT: !Ref CAENDPOINT
