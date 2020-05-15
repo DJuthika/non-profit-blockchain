@@ -273,42 +273,43 @@ let Chaincode = class {
    * @param {*} stub 
    * @param {*} args - JSON as follows:
    * {
-   *   TODO: add sample input
+   *   "entryId": "12341234",
+   *   "orderId": "902-12344321-56788765",
+   *   "entityRegistrationNumber": "6322",
+   *   "entryName": "Cotton Growing",
+   *   "date": {"Harvest Date": "12344321000", "Ship Date": "56788765000"},
+   *   "sustainabilityCert": ["BCI_Certificate_Id"],
+   *   "carrier": "",
+   *   "relatedDocuments": ["Link_to_farm_profile_image"],
+   *   "imageLinks" : [],
+   *   "additionalMetadata": {}
    * }
    */
   async createEntry(stub, args) {
     console.log('============= START : createEntry ===========');
     console.log('##### createEntry arguments: ' + JSON.stringify(args));
 
-//    TODO: The commented code below needs to be updated
-//    // args is passed as a JSON string
-//    let json = JSON.parse(args);
-//    let key = 'donation' + json['donationId'];
-//    json['docType'] = 'donation';
-//
-//    console.log('##### createDonation donation: ' + JSON.stringify(json));
-//
-//    // Confirm the NGO exists
-//    let ngoKey = 'ngo' + json['ngoRegistrationNumber'];
-//    let ngoQuery = await stub.getState(ngoKey);
-//    if (!ngoQuery.toString()) {
-//      throw new Error('##### createDonation - Cannot create donation as the NGO does not exist: ' + json['ngoRegistrationNumber']);
-//    }
-//
-//    // Confirm the donor exists
-//    let donorKey = 'donor' + json['donorUserName'];
-//    let donorQuery = await stub.getState(donorKey);
-//    if (!donorQuery.toString()) {
-//      throw new Error('##### createDonation - Cannot create donation as the Donor does not exist: ' + json['donorUserName']);
-//    }
-//
-//    // Check if the Donation already exists
-//    let donationQuery = await stub.getState(key);
-//    if (donationQuery.toString()) {
-//      throw new Error('##### createDonation - This Donation already exists: ' + json['donationId']);
-//    }
-//
-//    await stub.putState(key, Buffer.from(JSON.stringify(json)));
+    // args is passed as a JSON string
+    let json = JSON.parse(args);
+    let key = 'entry' + json['entryId'];
+    json['docType'] = 'entry';
+
+    console.log('##### createEntry entry: ' + JSON.stringify(json));
+
+    // Confirm the Entity exists
+    let entityKey = 'entity' + json['entityRegistrationNumber'];
+    let entityQuery = await stub.getState(entityKey);
+    if (!entityQuery.toString()) {
+      throw new Error('##### createEntry - Cannot create entry as the Entity does not exist: ' + json['entityRegistrationNumber']);
+    }
+
+    // Check if the Entry already exists
+    let entryQuery = await stub.getState(key);
+    if (entryQuery.toString()) {
+      throw new Error('##### createEntry - This Entry already exists: ' + json['entryId']);
+    }
+
+    await stub.putState(key, Buffer.from(JSON.stringify(json)));
     console.log('============= END : createEntry ===========');
   }
 
