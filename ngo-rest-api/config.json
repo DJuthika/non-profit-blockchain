@@ -1,16 +1,16 @@
 {
-    "host":"localhost",
-    "port":"3000",
-    "channelName":"mychannel",
-    "chaincodeName":"ngo",
-    "eventWaitTime":"30000",
-    "peers":[
-        "peer1"
-    ],
-    "admins":[
-       {
-          "username":"admin",
-          "secret":"Adminpwd1!"
-       }
-    ]
- }
+  "host":"localhost",
+  "port":"3000",
+  "channelName":"mychannel2",
+  "chaincodeName":"ngo",
+  "eventWaitTime":"30000",
+  "peers":[
+    "peer1"
+  ],
+  "admins":[
+    {
+      "username":"rhapsody",
+      "secret":"Rhapsody123"
+    }
+  ]
+}
