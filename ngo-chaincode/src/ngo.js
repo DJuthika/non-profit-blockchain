@@ -326,12 +326,11 @@ let Chaincode = class {
     console.log('============= START : queryEntriesByOrderId ===========');
     console.log('##### queryEntriesByOrderId arguments: ' + JSON.stringify(args));
 
-//    TODO: The commented code below needs to be updated
-//    // args is passed as a JSON string
-//    let json = JSON.parse(args);
-//    let queryString = '{"selector": {"docType": "action", "orderId": "' + json['orderId'] + '"}}';
-//    return queryByString(stub, queryString);
-    console.log('============= END : createEntry ===========');
+
+    // args is passed as a JSON string
+    let json = JSON.parse(args);
+    let queryString = '{"selector": {"docType": "entry", "orderId": "' + json['orderId'] + '"}}';
+    return queryByString(stub, queryString);
   }
 
   /************************************************************************************************
