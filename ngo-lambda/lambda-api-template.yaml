@@ -112,6 +112,18 @@ Resources:
             Path: /entities/{entityRegistrationNumber}
             Method: get
             RestApiId: !Ref ChainReactionApiGateway
+        CreateEntry:
+            Type: Api
+            Properties:
+              Path: /entry
+              Method: post
+              RestApiId: !Ref ChainReactionApiGateway
+        QueryEntryByOrderId:
+            Type: Api
+            Properties:
+              Path: /entry/{orderId}
+              Method: get
+              RestApiId: !Ref ChainReactionApiGateway
   SecretsManagerVPCE:
     Type: 'AWS::EC2::VPCEndpoint'
     Properties:
@@ -216,6 +228,72 @@ Resources:
                   application/json: "{\n  \"functionType\": \"queryObject\",\n  \"chaincodeFunction\"\
                     : \"queryEntity\",\n  \"chaincodeFunctionArgs\": {\n      \"entityRegistrationNumber\"\
                     : \"$input.params('entityRegistrationNumber')\"\n  },\n  \"fabricUsername\": \"lambdaUser\"\
+                    \n}"
+                passthroughBehavior: "when_no_templates"
+                httpMethod: "POST"
+                contentHandling: "CONVERT_TO_TEXT"
+                type: "aws"
+          /entry:
+            post:
+              consumes:
+                - "application/json"
+              produces:
+                - "application/json"
+              responses:
+                "200":
+                  description: "200 response"
+                  schema:
+                    $ref: "#/definitions/Empty"
+              x-amazon-apigateway-integration:
+                uri:
+                  Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${ChainReactionLambdaFunction.Arn}/invocations"
+                responses:
+                  default:
+                    statusCode: "200"
+                requestTemplates:
+                  application/json: "{\n  \"functionType\": \"invoke\",\n  \"chaincodeFunction\"\
+                              : \"createEntry\",\n  \"chaincodeFunctionArgs\": {\n      #set( $body\
+                              \ = $util.parseJson($input.body) )\n      \"entryId\": \"$body.entryId\"\
+                              ,\n   \"entityRegistrationNumber\": \"$body.entityRegistrationNumber\"\
+                              ,\n   \"orderId\": \"$body.orderId\"\
+                              ,\n   \"entryName\": \"$body.entryName\"
+                              ,\n  \"date\": \"$body.date\"\
+                              ,\n   \"sustainabilityCert\": \"$body.sustainabilityCert\"\
+                              ,\n   \"carrier\": \"$body.carrier\"\
+                              ,\n   \"relatedDocuments\": \"$body.relatedDocuments\"\
+                              ,\n   \"imageLinks\": \"$body.imageLinks\"\
+                              ,\n   \"additionalMetadata\": \"$body.additionalMetadata\"\
+                              \n  },\n  \"fabricUsername\": \"lambdaUser\"\n}"
+                passthroughBehavior: "when_no_templates"
+                httpMethod: "POST"
+                contentHandling: "CONVERT_TO_TEXT"
+                type: "aws"
+          /entry/{orderId}:
+            get:
+              consumes:
+                - "application/json"
+              produces:
+                - "application/json"
+              parameters:
+                - name: "orderId"
+                  in: "path"
+                  required: true
+                  type: "string"
+              responses:
+                "200":
+                  description: "200 response"
+                  schema:
+                    $ref: "#/definitions/Empty"
+              x-amazon-apigateway-integration:
+                uri:
+                  Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${ChainReactionLambdaFunction.Arn}/invocations"
+                responses:
+                  default:
+                    statusCode: "200"
+                requestTemplates:
+                  application/json: "{\n  \"functionType\": \"queryObject\",\n  \"chaincodeFunction\"\
+                    : \"queryEntriesByOrderId\",\n  \"chaincodeFunctionArgs\": {\n      \"orderId\"\
+                    : \"$input.params('orderId')\"\n  },\n  \"fabricUsername\": \"lambdaUser\"\
                     \n}"
                 passthroughBehavior: "when_no_templates"
                 httpMethod: "POST"
