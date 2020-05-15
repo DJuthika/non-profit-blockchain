@@ -276,6 +276,7 @@ let Chaincode = class {
    *   "entryId": "12341234",
    *   "orderId": "902-12344321-56788765",
    *   "entityRegistrationNumber": "6322",
+   *   "entityType": "Farm",
    *   "entryName": "Cotton Growing",
    *   "date": {"Harvest Date": "12344321000", "Ship Date": "56788765000"},
    *   "sustainabilityCert": ["BCI_Certificate_Id"],

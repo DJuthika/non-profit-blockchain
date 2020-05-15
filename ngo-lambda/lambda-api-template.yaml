@@ -255,6 +255,7 @@ Resources:
                               : \"createEntry\",\n  \"chaincodeFunctionArgs\": {\n      #set( $body\
                               \ = $util.parseJson($input.body) )\n      \"entryId\": \"$body.entryId\"\
                               ,\n   \"entityRegistrationNumber\": \"$body.entityRegistrationNumber\"\
+                              ,\n   \"entityType\": \"$body.entityType\"\
                               ,\n   \"orderId\": \"$body.orderId\"\
                               ,\n   \"entryName\": \"$body.entryName\"
                               ,\n  \"date\": \"$body.date\"\
