@@ -10,7 +10,7 @@
 # on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
 # express or implied. See the License for the specific language governing
 # permissions and limitations under the License.
- 
+
 AWSTemplateFormatVersion:                         '2010-09-09'
 Transform:                                        'AWS::Serverless-2016-10-31'
 Description:                                      >
@@ -68,7 +68,7 @@ Resources:
       ManagedPolicyArns:
         - !Ref SecretsManagerReadPolicy
         - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
-  NGOLambdaFunction:
+  ChainReactionLambdaFunction:
     Type: 'AWS::Serverless::Function'
     Properties:
       Handler: index.handler
@@ -89,29 +89,29 @@ Resources:
           MSP: !Ref MSP
           MEMBERNAME: !Ref MEMBERNAME
       VpcConfig:
-        SecurityGroupIds: 
+        SecurityGroupIds:
           - !Ref SECURITYGROUPID
         SubnetIds:
           - !Ref SUBNETID
       Events:
-        GetDonors:
+        QueryAllEntities:
           Type: Api
           Properties:
-            Path: /donors
+            Path: /entities
             Method: get
-            RestApiId: !Ref NGOAPIGateway
-        CreateDonor:
+            RestApiId: !Ref ChainReactionApiGateway
+        CreateEntity:
           Type: Api
           Properties:
-            Path: /donors
+            Path: /entities
             Method: post
-            RestApiId: !Ref NGOAPIGateway
-        GetDonor:
+            RestApiId: !Ref ChainReactionApiGateway
+        QueryEntity:
           Type: Api
           Properties:
-            Path: /donors/{donorUserName}
+            Path: /entities/{entityRegistrationNumber}
             Method: get
-            RestApiId: !Ref NGOAPIGateway
+            RestApiId: !Ref ChainReactionApiGateway
   SecretsManagerVPCE:
     Type: 'AWS::EC2::VPCEndpoint'
     Properties:
@@ -123,10 +123,10 @@ Resources:
       VpcId: !Ref VPCID
       ServiceName: com.amazonaws.us-east-1.secretsmanager
       PrivateDnsEnabled: true
-  NGOAPIGateway:
+  ChainReactionApiGateway:
     Type: 'AWS::Serverless::Api'
     Properties:
-      Name: NGO API
+      Name: ChainReaction Api Gateway
       StageName: dev
       DefinitionBody: # Can't use uri: https://github.com/awslabs/serverless-application-model/issues/305
         swagger: "2.0"
@@ -134,7 +134,7 @@ Resources:
           version: "2019-11-13T11:12:00Z"
           title: "Non Profit Blockchain"
         paths:
-          /donors:
+          /entities:
             get:
               consumes:
               - "application/json"
@@ -147,13 +147,13 @@ Resources:
                     $ref: "#/definitions/Empty"
               x-amazon-apigateway-integration:
                 uri:
-                  Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${NGOLambdaFunction.Arn}/invocations"
+                  Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${ChainReactionLambdaFunction.Arn}/invocations"
                 responses:
                   default:
                     statusCode: "200"
                 requestTemplates:
                   application/json: "{\n  \"functionType\": \"queryObject\",\n  \"chaincodeFunction\"\
-                    : \"queryAllDonors\",\n  \"chaincodeFunctionArgs\": {},\n  \"fabricUsername\"\
+                    : \"queryAllEntities\",\n  \"chaincodeFunctionArgs\": {},\n  \"fabricUsername\"\
                     : \"lambdaUser\"\n}"
                 passthroughBehavior: "when_no_templates"
                 httpMethod: "POST"
@@ -171,21 +171,24 @@ Resources:
                     $ref: "#/definitions/Empty"
               x-amazon-apigateway-integration:
                 uri:
-                  Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${NGOLambdaFunction.Arn}/invocations"
+                  Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${ChainReactionLambdaFunction.Arn}/invocations"
                 responses:
                   default:
                     statusCode: "200"
                 requestTemplates:
                   application/json: "{\n  \"functionType\": \"invoke\",\n  \"chaincodeFunction\"\
-                    : \"createDonor\",\n  \"chaincodeFunctionArgs\": {\n      #set( $body\
-                    \ = $util.parseJson($input.body) )\n      \"donorUserName\": \"$body.donorUserName\"\
-                    ,\n      \"email\": \"$body.email\",\n      \"registeredDate\":\"$context.requestTime\"\
+                    : \"createEntity\",\n  \"chaincodeFunctionArgs\": {\n      #set( $body\
+                    \ = $util.parseJson($input.body) )\n      \"entityName\": \"$body.entityName\"\
+                    ,\n   \"entityType\": \"$body.entityType\"\
+                    ,\n   \"contactEmail\": \"$body.contactEmail\",\n  \"entityDescription\": \"$body.entityDescription\"\
+                    ,\n   \"entityAddress\": \"$body.entityAddress\"\
+                    ,\n   \"contactNumber\": \"$body.contactNumber\"\
                     \n  },\n  \"fabricUsername\": \"lambdaUser\"\n}"
                 passthroughBehavior: "when_no_templates"
                 httpMethod: "POST"
                 contentHandling: "CONVERT_TO_TEXT"
                 type: "aws"
-          /donors/{donorUserName}:
+          /entities/{entityRegistrationNumber}:
             get:
               consumes:
               - "application/json"
@@ -203,14 +206,14 @@ Resources:
                     $ref: "#/definitions/Empty"
               x-amazon-apigateway-integration:
                 uri:
-                  Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${NGOLambdaFunction.Arn}/invocations"
+                  Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${ChainReactionLambdaFunction.Arn}/invocations"
                 responses:
                   default:
                     statusCode: "200"
                 requestTemplates:
                   application/json: "{\n  \"functionType\": \"queryObject\",\n  \"chaincodeFunction\"\
-                    : \"queryDonor\",\n  \"chaincodeFunctionArgs\": {\n      \"donorUserName\"\
-                    : \"$input.params('donorUserName')\"\n  },\n  \"fabricUsername\": \"lambdaUser\"\
+                    : \"queryEntity\",\n  \"chaincodeFunctionArgs\": {\n      \"entityRegistrationNumber\"\
+                    : \"$input.params('entityRegistrationNumber')\"\n  },\n  \"fabricUsername\": \"lambdaUser\"\
                     \n}"
                 passthroughBehavior: "when_no_templates"
                 httpMethod: "POST"
@@ -223,4 +226,4 @@ Resources:
 Outputs:
   APIGatewayURL:
     Description: "API Gateway endpoint URL for Dev stage"
-    Value: !Sub "https://${NGOAPIGateway}.execute-api.${AWS::Region}.amazonaws.com/dev"
+    Value: !Sub "https://${ChainReactionApiGateway}.execute-api.${AWS::Region}.amazonaws.com/dev"

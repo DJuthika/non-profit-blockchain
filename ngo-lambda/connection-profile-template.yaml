@@ -19,7 +19,7 @@ version: "1.0"
 channels:
   mychannel:
     orderers:
-      - orderer.com
+      - mychannel2
     peers:
       peer1:
         endorsingPeer: true
