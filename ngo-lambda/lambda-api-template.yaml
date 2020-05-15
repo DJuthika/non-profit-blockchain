@@ -14,7 +14,7 @@
 AWSTemplateFormatVersion:                         '2010-09-09'
 Transform:                                        'AWS::Serverless-2016-10-31'
 Description:                                      >
-  This template creates a Lambda function and its associated IAM role and policies.  
+  This template creates a Lambda function and its associated IAM role and policies.
   It also creates the VPC endpoint needed to interface with Secrets Manager.
 Parameters:
   PEERENDPOINT:
@@ -179,8 +179,10 @@ Resources:
                   application/json: "{\n  \"functionType\": \"invoke\",\n  \"chaincodeFunction\"\
                     : \"createEntity\",\n  \"chaincodeFunctionArgs\": {\n      #set( $body\
                     \ = $util.parseJson($input.body) )\n      \"entityName\": \"$body.entityName\"\
+                    ,\n   \"entityRegistrationNumber\": \"$body.entityRegistrationNumber\"\
                     ,\n   \"entityType\": \"$body.entityType\"\
-                    ,\n   \"contactEmail\": \"$body.contactEmail\",\n  \"entityDescription\": \"$body.entityDescription\"\
+                    ,\n   \"contactEmail\": \"$body.contactEmail\"
+                    ,\n  \"entityDescription\": \"$body.entityDescription\"\
                     ,\n   \"entityAddress\": \"$body.entityAddress\"\
                     ,\n   \"contactNumber\": \"$body.contactNumber\"\
                     \n  },\n  \"fabricUsername\": \"lambdaUser\"\n}"
@@ -195,7 +197,7 @@ Resources:
               produces:
               - "application/json"
               parameters:
-              - name: "donorUserName"
+              - name: "entityRegistrationNumber"
                 in: "path"
                 required: true
                 type: "string"
